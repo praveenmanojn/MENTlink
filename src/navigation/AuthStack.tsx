@@ -1,9 +1,11 @@
-import { StackNavigator } from '@react-navigation/native-stack';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SplashScreen from '../screens/auth/SplashScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import ForgotPasswordScreen from '../screens/auth/ForgotPasswordScreen';
 import RoleSelectionScreen from '../screens/auth/RoleSelectionScreen';
+
+const Stack = createNativeStackNavigator();
 
 const AuthStack = () => {
   return (

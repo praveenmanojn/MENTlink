@@ -8,12 +8,23 @@
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    },
     "incremental": true,
     "noEmit": true
   },
-  "include": ["src"]
+  "include": [
+    "App.tsx",
+    "src/App.tsx",
+    "src/navigation/**/*.ts",
+    "src/navigation/**/*.tsx",
+    "src/screens/**/*.ts",
+    "src/screens/**/*.tsx",
+    "src/services/**/*.ts",
+    "src/services/**/*.tsx",
+    "src/store/**/*.ts",
+    "src/store/**/*.tsx",
+    "src/types/**/*.d.ts",
+    "src/utils/**/*.ts",
+    "src/utils/**/*.tsx"
+  ],
+  "extends": "expo/tsconfig.base"
 }
