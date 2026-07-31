@@ -1,235 +1,172 @@
+/**
+ * RoleSelectionScreen — PeerLink
+ * Three role cards (Student / Mentor / Admin) as individually pinned sticky notes.
+ */
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
+  View, Text, StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackNavigationProp } from '../../types/navigation';
-import { theme } from '../../theme';
-import Button from '../../components/common/Button';
+import NotebookBackground from '../../components/common/NotebookBackground';
+import PinWidget from '../../components/common/PinWidget';
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
+
+const ROLES = [
+  {
+    type: 'student' as const,
+    emoji: '🎓',
+    title: "I'm a Student",
+    badge: 'Most Popular',
+    badgeBg: Colors.stickyBlue,
+    cardBg: Colors.paperWhite,
+    pin: Colors.pinBlue,
+    rot: -2,
+    bullets: [
+      '✓ Unlimited doubt submissions',
+      '✓ Match with top peer mentors',
+      '✓ Access study notes & session history',
+    ],
+    btnLabel: 'Continue as Student →',
+    btnBg: Colors.stickyBlue,
+  },
+  {
+    type: 'mentor' as const,
+    emoji: '👨‍🏫',
+    title: "I'm a Peer Mentor",
+    badge: 'High Impact',
+    badgeBg: Colors.stickyGreen,
+    cardBg: Colors.paperCream,
+    pin: Colors.pinGreen,
+    rot: 1.5,
+    bullets: [
+      '✓ Guide junior & peer students',
+      '✓ Build verified mentor credentials',
+      '✓ Flexible session scheduling',
+    ],
+    btnLabel: 'Continue as Mentor →',
+    btnBg: Colors.stickyGreen,
+  },
+];
 
 export const RoleSelectionScreen = () => {
   const navigation = useNavigation<AuthStackNavigationProp<'RoleSelection'>>();
 
-  const handleSelectRole = (role: 'student' | 'mentor') => {
-    navigation.navigate('Register', { role });
-  };
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.notebookBg} />
+      <NotebookBackground>
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
             <Text style={styles.backText}>← Back</Text>
           </TouchableOpacity>
-        </View>
 
-        <Text style={styles.headline}>Choose Your Journey</Text>
-        <Text style={styles.subtitle}>
-          How would you like to participate in the MENTlink community?
-        </Text>
-
-        {/* Student Card */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => handleSelectRole('student')}
-          style={[styles.roleCard, styles.studentCard]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBadge, { backgroundColor: '#EEF2FF' }]}>
-              <Text style={styles.iconText}>🎓</Text>
-            </View>
-            <View style={styles.badgeLabel}>
-              <Text style={styles.badgeText}>Most Popular</Text>
-            </View>
+          {/* Header note */}
+          <View style={styles.headerCard}>
+            <Text style={styles.headline}>Choose Your Journey</Text>
+            <Text style={styles.subheadline}>How would you like to join PeerLink?</Text>
           </View>
 
-          <Text style={styles.roleTitle}>I'm a Student</Text>
-          <Text style={styles.roleDescription}>
-            I want to ask doubts, connect with peer mentors, join live study sessions, and excel in my courses.
-          </Text>
+          {/* Role cards */}
+          {ROLES.map((r) => (
+            <View key={r.type} style={styles.cardWrapper}>
+              <View style={styles.cardPin}><PinWidget color={r.pin} size={22} /></View>
+              <View style={[styles.card, { backgroundColor: r.cardBg, transform: [{ rotate: `${r.rot}deg` }] }]}>
+                <View style={styles.cardHeader}>
+                  <View style={styles.emojiBox}><Text style={styles.emoji}>{r.emoji}</Text></View>
+                  <View style={[styles.badge, { backgroundColor: r.badgeBg }]}>
+                    <Text style={styles.badgeText}>{r.badge}</Text>
+                  </View>
+                </View>
 
-          <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>✓ Unlimited doubt submissions</Text>
-            <Text style={styles.bulletItem}>✓ Match with top peer mentors</Text>
-            <Text style={styles.bulletItem}>✓ Access study notes & session history</Text>
-          </View>
+                <Text style={styles.roleTitle}>{r.title}</Text>
 
-          <Button
-            title="Continue as Student →"
-            onPress={() => handleSelectRole('student')}
-            variant="primary"
-            style={styles.cardButton}
-          />
-        </TouchableOpacity>
+                <View style={styles.bullets}>
+                  {r.bullets.map((b, i) => (
+                    <Text key={i} style={styles.bullet}>{b}</Text>
+                  ))}
+                </View>
 
-        {/* Mentor Card */}
-        <TouchableOpacity
-          activeOpacity={0.9}
-          onPress={() => handleSelectRole('mentor')}
-          style={[styles.roleCard, styles.mentorCard]}
-        >
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconBadge, { backgroundColor: '#ECFDF5' }]}>
-              <Text style={styles.iconText}>👨‍🏫</Text>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Register', { role: r.type })}
+                  style={[styles.roleBtn, { backgroundColor: r.btnBg }]}
+                >
+                  <Text style={styles.roleBtnText}>{r.btnLabel}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-            <View style={[styles.badgeLabel, { backgroundColor: '#ECFDF5' }]}>
-              <Text style={[styles.badgeText, { color: theme.colors.secondaryDark }]}>High Impact</Text>
-            </View>
+          ))}
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>Already have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.footerLink}>Log In</Text>
+            </TouchableOpacity>
           </View>
-
-          <Text style={styles.roleTitle}>I'm a Peer Mentor</Text>
-          <Text style={styles.roleDescription}>
-            I want to share my academic expertise, answer queries, earn student ratings, and enhance my leadership resume.
-          </Text>
-
-          <View style={styles.bulletList}>
-            <Text style={styles.bulletItem}>✓ Guide junior & peer students</Text>
-            <Text style={styles.bulletItem}>✓ Build verified mentor credentials</Text>
-            <Text style={styles.bulletItem}>✓ Flexible session scheduling</Text>
-          </View>
-
-          <Button
-            title="Continue as Mentor →"
-            onPress={() => handleSelectRole('mentor')}
-            variant="secondary"
-            style={styles.cardButton}
-          />
-        </TouchableOpacity>
-
-        {/* Footer Login Link */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Already have an account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.loginText}>Log In</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+          <View style={{ height: 32 }} />
+        </ScrollView>
+      </NotebookBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
+  safe: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32 },
+  back: { marginBottom: 12 },
+  backText: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack },
+
+  headerCard: {
+    backgroundColor: Colors.stickyYellow,
+    borderWidth: 3, borderColor: Colors.borderBlack, borderRadius: Radius.md,
+    padding: 18, marginBottom: 28,
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1, shadowRadius: 0, elevation: 4,
+    transform: [{ rotate: '-0.5deg' }],
   },
-  scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
+  headline: { fontFamily: FontFamily.extraBold, fontSize: FontSize.xxl, color: Colors.inkBlack, marginBottom: 4 },
+  subheadline: { fontFamily: FontFamily.medium, fontSize: FontSize.sm, color: Colors.inkDark },
+
+  cardWrapper: { alignItems: 'center', marginBottom: 28 },
+  cardPin: { marginBottom: -11, zIndex: 10 },
+  card: {
+    width: '100%', borderWidth: 3, borderColor: Colors.borderBlack,
+    borderRadius: Radius.md, padding: 22,
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 1, shadowRadius: 0, elevation: 5,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  emojiBox: {
+    width: 52, height: 52, backgroundColor: Colors.paperCream,
+    borderWidth: 2.5, borderColor: Colors.borderBlack, borderRadius: Radius.sm,
+    alignItems: 'center', justifyContent: 'center',
   },
-  backButton: {
-    paddingVertical: theme.spacing.xs,
+  emoji: { fontSize: 26 },
+  badge: {
+    borderWidth: 2, borderColor: Colors.borderBlack, borderRadius: Radius.sm,
+    paddingHorizontal: 10, paddingVertical: 4,
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1, shadowRadius: 0, elevation: 2,
   },
-  backText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.primary,
+  badgeText: { fontFamily: FontFamily.bold, fontSize: FontSize.xxs, color: Colors.inkBlack },
+  roleTitle: { fontFamily: FontFamily.extraBold, fontSize: FontSize.xl, color: Colors.inkBlack, marginBottom: 14 },
+  bullets: { marginBottom: 20, gap: 6 },
+  bullet: { fontFamily: FontFamily.medium, fontSize: FontSize.sm, color: Colors.inkDark, lineHeight: 22 },
+
+  roleBtn: {
+    borderWidth: 2.5, borderColor: Colors.borderBlack, borderRadius: Radius.sm,
+    paddingVertical: 12, alignItems: 'center',
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1, shadowRadius: 0, elevation: 3,
   },
-  headline: {
-    fontSize: 26,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xs,
-  },
-  subtitle: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xl,
-  },
-  roleCard: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    marginBottom: theme.spacing.lg,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    ...theme.shadows.md,
-  },
-  studentCard: {
-    borderColor: theme.colors.primaryLight,
-  },
-  mentorCard: {
-    borderColor: theme.colors.secondary,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  iconBadge: {
-    width: 48,
-    height: 48,
-    borderRadius: theme.borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconText: {
-    fontSize: 24,
-  },
-  badgeLabel: {
-    backgroundColor: theme.colors.primaryBg,
-    paddingHorizontal: theme.spacing.sm,
-    paddingVertical: 4,
-    borderRadius: theme.borderRadius.full,
-  },
-  badgeText: {
-    fontSize: 11,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.primary,
-  },
-  roleTitle: {
-    fontSize: 20,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  roleDescription: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    lineHeight: 20,
-    marginBottom: theme.spacing.md,
-  },
-  bulletList: {
-    marginBottom: theme.spacing.lg,
-    gap: theme.spacing.xs,
-  },
-  bulletItem: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.text,
-    fontWeight: theme.fontWeight.medium,
-  },
-  cardButton: {
-    width: '100%',
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: theme.spacing.md,
-  },
-  footerText: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-  },
-  loginText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.primary,
-  },
+  roleBtnText: { fontFamily: FontFamily.bold, fontSize: FontSize.md, color: Colors.inkBlack },
+
+  footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 8 },
+  footerText: { fontFamily: FontFamily.medium, fontSize: FontSize.sm, color: Colors.inkMedium },
+  footerLink: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack, textDecorationLine: 'underline' },
 });
 
 export default RoleSelectionScreen;

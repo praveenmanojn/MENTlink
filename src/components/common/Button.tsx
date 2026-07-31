@@ -1,150 +1,146 @@
-import React from 'react';
+/**
+ * PaperButton
+ * Buttons that look like paper labels — thick border, flat shadow, slight rotation, press animation.
+ * NOT a pill. NOT material. NOT rounded 20px.
+ */
+import React, { useRef } from 'react';
 import {
-  TouchableOpacity,
+  Animated,
+  TouchableWithoutFeedback,
   Text,
+  View,
   StyleSheet,
   ActivityIndicator,
-  ViewStyle,
-  TextStyle,
   StyleProp,
+  ViewStyle,
 } from 'react-native';
-import { theme } from '../../theme';
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
+import { Animations } from '../../theme/animations';
 
-export interface ButtonProps {
+type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'outline' | 'ghost';
+type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface ButtonProps {
   title: string;
-  onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
-  size?: 'sm' | 'md' | 'lg';
+  onPress?: () => void;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   loading?: boolean;
   disabled?: boolean;
-  icon?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
-  textStyle?: StyleProp<TextStyle>;
+  /** Slight tilt rotation in degrees (default 0) */
+  rotation?: number;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+const VARIANT_STYLES: Record<ButtonVariant, { bg: string; textColor: string; borderColor: string }> = {
+  primary: { bg: Colors.inkBlack, textColor: Colors.white, borderColor: Colors.inkBlack },
+  secondary: { bg: Colors.stickyGreen, textColor: Colors.inkBlack, borderColor: Colors.inkBlack },
+  danger:    { bg: Colors.stickyRed,  textColor: Colors.white,    borderColor: Colors.inkBlack },
+  outline:   { bg: Colors.paperWhite, textColor: Colors.inkBlack, borderColor: Colors.inkBlack },
+  ghost:     { bg: Colors.transparent, textColor: Colors.inkBlack, borderColor: Colors.transparent },
+};
+
+const SIZE_STYLES: Record<ButtonSize, { paddingV: number; paddingH: number; fontSize: number }> = {
+  sm: { paddingV: 6,  paddingH: 12, fontSize: FontSize.xs },
+  md: { paddingV: 10, paddingH: 18, fontSize: FontSize.sm },
+  lg: { paddingV: 14, paddingH: 24, fontSize: FontSize.md },
+};
+
+const Button: React.FC<ButtonProps> = ({
   title,
   onPress,
   variant = 'primary',
   size = 'md',
   loading = false,
   disabled = false,
-  icon,
   style,
-  textStyle,
+  rotation = 0,
 }) => {
-  const isOutline = variant === 'outline';
-  const isSecondary = variant === 'secondary';
-  const isGhost = variant === 'ghost';
+  const scale = useRef(new Animated.Value(1)).current;
+  const translateY = useRef(new Animated.Value(0)).current;
 
-  const containerStyles = [
-    styles.base,
-    styles[`size_${size}`],
-    styles[`variant_${variant}`],
-    disabled && styles.disabled,
-    style,
-  ];
+  const varStyle = VARIANT_STYLES[variant];
+  const sizeStyle = SIZE_STYLES[size];
 
-  const textStyles = [
-    styles.textBase,
-    styles[`textSize_${size}`],
-    isOutline && styles.textOutline,
-    isSecondary && styles.textSecondary,
-    isGhost && styles.textGhost,
-    disabled && styles.textDisabled,
-    textStyle,
-  ];
+  const handlePressIn = () => {
+    Animated.parallel([
+      Animated.timing(scale, { toValue: 0.96, duration: Animations.buttonPress, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 2, duration: Animations.buttonPress, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.parallel([
+      Animated.timing(scale, { toValue: 1, duration: Animations.buttonPress, useNativeDriver: true }),
+      Animated.timing(translateY, { toValue: 0, duration: Animations.buttonPress, useNativeDriver: true }),
+    ]).start();
+  };
+
+  const isDisabled = disabled || loading;
 
   return (
-    <TouchableOpacity
-      activeOpacity={0.8}
+    <TouchableWithoutFeedback
       onPress={onPress}
-      disabled={disabled || loading}
-      style={containerStyles}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      disabled={isDisabled}
     >
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={isOutline || isGhost ? theme.colors.primary : theme.colors.surface}
-        />
-      ) : (
-        <>
-          {icon}
-          <Text style={textStyles}>{title}</Text>
-        </>
-      )}
-    </TouchableOpacity>
+      <Animated.View
+        style={[
+          styles.button,
+          {
+            backgroundColor: isDisabled ? Colors.inkFaint : varStyle.bg,
+            borderColor: isDisabled ? Colors.inkFaint : varStyle.borderColor,
+            paddingVertical: sizeStyle.paddingV,
+            paddingHorizontal: sizeStyle.paddingH,
+            transform: [{ scale }, { translateY }, { rotate: `${rotation}deg` }],
+            opacity: isDisabled ? 0.65 : 1,
+          },
+          style as ViewStyle,
+        ]}
+      >
+        {/* Flat shadow layer */}
+        <View style={[styles.shadowLayer, { borderColor: isDisabled ? Colors.inkFaint : Colors.inkBlack }]} />
+
+        {loading ? (
+          <ActivityIndicator color={varStyle.textColor} size="small" />
+        ) : (
+          <Text style={[styles.label, { color: varStyle.textColor, fontSize: sizeStyle.fontSize }]}>
+            {title}
+          </Text>
+        )}
+      </Animated.View>
+    </TouchableWithoutFeedback>
   );
 };
 
-export const PrimaryButton = (props: ButtonProps) => <Button variant="primary" {...props} />;
-export const SecondaryButton = (props: ButtonProps) => <Button variant="secondary" {...props} />;
-
 const styles = StyleSheet.create({
-  base: {
-    flexDirection: 'row',
+  button: {
+    borderWidth: 2.5,
+    borderRadius: Radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: theme.borderRadius.md,
-    gap: theme.spacing.sm,
+    flexDirection: 'row',
+    position: 'relative',
   },
-  size_sm: {
-    paddingVertical: theme.spacing.xs + 4,
-    paddingHorizontal: theme.spacing.md,
+  shadowLayer: {
+    position: 'absolute',
+    top: 3,
+    left: 3,
+    right: -3,
+    bottom: -3,
+    borderWidth: 2.5,
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.transparent,
+    zIndex: -1,
   },
-  size_md: {
-    paddingVertical: theme.spacing.sm + 4,
-    paddingHorizontal: theme.spacing.lg,
-  },
-  size_lg: {
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.xl,
-  },
-  variant_primary: {
-    backgroundColor: theme.colors.primary,
-    ...theme.shadows.sm,
-  },
-  variant_secondary: {
-    backgroundColor: theme.colors.primaryBg,
-  },
-  variant_outline: {
-    backgroundColor: 'transparent',
-    borderWidth: 1.5,
-    borderColor: theme.colors.primary,
-  },
-  variant_ghost: {
-    backgroundColor: 'transparent',
-  },
-  disabled: {
-    opacity: 0.5,
-    backgroundColor: theme.colors.border,
-    borderColor: theme.colors.border,
-  },
-  textBase: {
-    color: theme.colors.surface,
-    fontWeight: theme.fontWeight.semibold,
+  label: {
+    fontFamily: FontFamily.bold,
+    fontWeight: '700',
+    letterSpacing: 0.3,
     textAlign: 'center',
-  },
-  textSize_sm: {
-    fontSize: theme.fontSize.sm,
-  },
-  textSize_md: {
-    fontSize: theme.fontSize.md,
-  },
-  textSize_lg: {
-    fontSize: theme.fontSize.lg,
-  },
-  textOutline: {
-    color: theme.colors.primary,
-  },
-  textSecondary: {
-    color: theme.colors.primary,
-  },
-  textGhost: {
-    color: theme.colors.primary,
-  },
-  textDisabled: {
-    color: theme.colors.muted,
   },
 });
 

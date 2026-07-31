@@ -1,40 +1,48 @@
-import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
-import { theme } from '../../theme';
+/**
+ * PaperSearchBar
+ * Search input that looks like a notebook search field.
+ */
+import React, { useState } from 'react';
+import { View, TextInput, StyleSheet, Text, StyleProp, ViewStyle } from 'react-native';
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
 
-export interface SearchBarProps {
+interface SearchBarProps {
   value: string;
   onChangeText: (text: string) => void;
   placeholder?: string;
-  onClear?: () => void;
+  style?: StyleProp<ViewStyle>;
 }
 
-export const SearchBar: React.FC<SearchBarProps> = ({
+const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChangeText,
-  placeholder = 'Search topics, mentors, or doubts...',
-  onClear,
+  placeholder = 'Search...',
+  style,
 }) => {
+  const [focused, setFocused] = useState(false);
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.searchIcon}>🔍</Text>
+    <View
+      style={[
+        styles.container,
+        focused && styles.focused,
+        style,
+      ]}
+    >
+      <Text style={styles.icon}>⌕</Text>
       <TextInput
         style={styles.input}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={theme.colors.muted}
+        placeholderTextColor={Colors.inkFaint}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       />
       {value.length > 0 && (
-        <TouchableOpacity
-          onPress={() => {
-            onChangeText('');
-            onClear?.();
-          }}
-          style={styles.clearButton}
-        >
-          <Text style={styles.clearText}>✕</Text>
-        </TouchableOpacity>
+        <Text style={styles.clear} onPress={() => onChangeText('')}>✕</Text>
       )}
     </View>
   );
@@ -44,26 +52,38 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.surfaceSecondary,
-    borderRadius: theme.borderRadius.full,
-    paddingHorizontal: theme.spacing.md,
-    height: 44,
+    backgroundColor: Colors.paperWhite,
+    borderWidth: 2.5,
+    borderColor: Colors.borderInk,
+    borderRadius: Radius.md,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 3,
   },
-  searchIcon: {
-    fontSize: 16,
-    marginRight: theme.spacing.sm,
+  focused: {
+    borderColor: Colors.pinBlue,
+  },
+  icon: {
+    fontSize: 20,
+    color: Colors.inkMedium,
+    marginRight: 8,
+    lineHeight: 24,
   },
   input: {
     flex: 1,
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.text,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.md,
+    color: Colors.inkBlack,
+    padding: 0,
   },
-  clearButton: {
-    padding: theme.spacing.xs,
-  },
-  clearText: {
-    fontSize: 12,
-    color: theme.colors.muted,
+  clear: {
+    fontSize: FontSize.sm,
+    color: Colors.inkMedium,
+    paddingLeft: 8,
   },
 });
 

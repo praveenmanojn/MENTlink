@@ -1,197 +1,109 @@
+/**
+ * ForgotPasswordScreen — PeerLink
+ * Simple paper note with email reset form.
+ */
 import React, { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  TouchableOpacity,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
+  View, Text, StyleSheet, SafeAreaView, TouchableOpacity, StatusBar, ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackNavigationProp } from '../../types/navigation';
-import { theme } from '../../theme';
+import NotebookBackground from '../../components/common/NotebookBackground';
+import PinWidget from '../../components/common/PinWidget';
 import TextInput from '../../components/common/TextInput';
 import Button from '../../components/common/Button';
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
 
-export const ForgotPasswordScreen = () => {
+const ForgotPasswordScreen = () => {
   const navigation = useNavigation<AuthStackNavigationProp<'ForgotPassword'>>();
-
   const [email, setEmail] = useState('');
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState('');
 
-  const handleReset = () => {
-    if (!email.trim()) {
-      setError('Please enter your university email address.');
-      return;
-    }
-    setError('');
+  const handleSend = () => {
+    if (!email.trim()) return;
     setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      setSubmitted(true);
-    }, 600);
+    setTimeout(() => { setLoading(false); setSent(true); }, 1000);
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-              <Text style={styles.backText}>← Back to Login</Text>
-            </TouchableOpacity>
-          </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.notebookBg} />
+      <NotebookBackground>
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back}>
+            <Text style={styles.backText}>← Back</Text>
+          </TouchableOpacity>
 
-          {/* Form Card */}
-          <View style={styles.card}>
-            <View style={styles.iconBox}>
-              <Text style={styles.iconText}>🔑</Text>
+          <View style={styles.cardWrapper}>
+            <View style={styles.pin}><PinWidget color={Colors.pinYellow} size={22} /></View>
+            <View style={styles.card}>
+              <Text style={styles.icon}>✉</Text>
+              <Text style={styles.title}>Reset Password</Text>
+              <Text style={styles.subtitle}>
+                Enter your email and we'll send you a link to reset your password.
+              </Text>
+
+              {sent ? (
+                <View style={styles.successBox}>
+                  <Text style={styles.successText}>
+                    ✓ Reset link sent! Check your inbox.
+                  </Text>
+                </View>
+              ) : (
+                <>
+                  <TextInput
+                    label="University Email"
+                    placeholder="jane@university.edu"
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                  <Button title="Send Reset Link" onPress={handleSend} loading={loading} size="lg" style={styles.btn} />
+                </>
+              )}
+
+              <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.footer}>
+                <Text style={styles.footerText}>← Back to Login</Text>
+              </TouchableOpacity>
             </View>
-
-            <Text style={styles.title}>Reset Password</Text>
-            <Text style={styles.subtitle}>
-              Enter your registered university email to receive a password reset link.
-            </Text>
-
-            {error ? <Text style={styles.errorMessage}>{error}</Text> : null}
-
-            {submitted ? (
-              <View style={styles.successBox}>
-                <Text style={styles.successTitle}>Check Your Inbox 📩</Text>
-                <Text style={styles.successDesc}>
-                  We have sent instructions to <Text style={{ fontWeight: 'bold' }}>{email}</Text>. Please check your spam folder if it doesn't appear in 2 minutes.
-                </Text>
-                <Button
-                  title="Back to Sign In"
-                  onPress={() => navigation.navigate('Login')}
-                  variant="primary"
-                  style={styles.submitBtn}
-                />
-              </View>
-            ) : (
-              <>
-                <TextInput
-                  label="University Email"
-                  placeholder="student@university.edu"
-                  value={email}
-                  onChangeText={setEmail}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                />
-
-                <Button
-                  title="Send Reset Instructions"
-                  onPress={handleReset}
-                  loading={loading}
-                  size="lg"
-                  style={styles.submitBtn}
-                />
-              </>
-            )}
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
+      </NotebookBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xl,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: theme.spacing.lg,
-  },
-  backButton: {
-    paddingVertical: theme.spacing.xs,
-  },
-  backText: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.primary,
-  },
+  safe: { flex: 1 },
+  scroll: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
+  back: { marginBottom: 16 },
+  backText: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack },
+  cardWrapper: { alignItems: 'center' },
+  pin: { marginBottom: -11, zIndex: 10 },
   card: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.xl,
-    padding: theme.spacing.lg,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadows.md,
+    backgroundColor: Colors.stickyYellowLight,
+    borderWidth: 3, borderColor: Colors.borderBlack, borderRadius: Radius.md,
+    padding: 24, width: '100%',
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 1, shadowRadius: 0, elevation: 5,
+    transform: [{ rotate: '-1deg' }],
   },
-  iconBox: {
-    width: 52,
-    height: 52,
-    borderRadius: theme.borderRadius.md,
-    backgroundColor: theme.colors.primaryBg,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: theme.spacing.md,
-  },
-  iconText: {
-    fontSize: 26,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
-  },
-  subtitle: {
-    fontSize: theme.fontSize.sm,
-    color: theme.colors.textSecondary,
-    marginBottom: theme.spacing.lg,
-    lineHeight: 20,
-  },
-  errorMessage: {
-    color: theme.colors.error,
-    fontSize: theme.fontSize.xs,
-    backgroundColor: theme.colors.errorBg,
-    padding: theme.spacing.sm,
-    borderRadius: theme.borderRadius.sm,
-    marginBottom: theme.spacing.md,
-  },
-  submitBtn: {
-    width: '100%',
-    marginTop: theme.spacing.sm,
-  },
+  icon: { fontSize: 42, textAlign: 'center', marginBottom: 10 },
+  title: { fontFamily: FontFamily.extraBold, fontSize: FontSize.xxl, color: Colors.inkBlack, textAlign: 'center', marginBottom: 8 },
+  subtitle: { fontFamily: FontFamily.medium, fontSize: FontSize.sm, color: Colors.inkDark, textAlign: 'center', lineHeight: 20, marginBottom: 22 },
+  btn: { width: '100%' },
   successBox: {
-    backgroundColor: theme.colors.secondaryBg,
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.md,
-    marginTop: theme.spacing.xs,
+    backgroundColor: Colors.stickyGreen,
+    borderWidth: 2.5, borderColor: Colors.borderBlack, borderRadius: Radius.sm,
+    padding: 14, marginTop: 8,
   },
-  successTitle: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.secondaryDark,
-    marginBottom: theme.spacing.xs,
-  },
-  successDesc: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
-    lineHeight: 18,
-    marginBottom: theme.spacing.md,
-  },
+  successText: { fontFamily: FontFamily.bold, fontSize: FontSize.md, color: Colors.inkBlack, textAlign: 'center' },
+  footer: { marginTop: 22, alignItems: 'center' },
+  footerText: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack, textDecorationLine: 'underline' },
 });
 
 export default ForgotPasswordScreen;

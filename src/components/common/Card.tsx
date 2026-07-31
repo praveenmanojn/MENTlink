@@ -1,48 +1,142 @@
-import React from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle, TouchableOpacity } from 'react-native';
-import { theme } from '../../theme';
+/**
+ * StickyNoteCard (Card)
+ * The fundamental building block of the PeerLink UI.
+ * Every major section is a sticky note card.
+ *
+ * Features:
+ * - Thick 3px black border
+ * - Flat offset shadow (no blur)
+ * - Optional rotation
+ * - Optional push pin at top center
+ * - Press animation: card lifts + rotation reduces
+ */
+import React, { useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  Animated,
+  TouchableWithoutFeedback,
+  ViewStyle,
+  StyleProp,
+} from 'react-native';
+import { Colors } from '../../theme/colors';
+import { Radius, flatShadow } from '../../theme/decorations';
+import { Animations } from '../../theme/animations';
+import PinWidget from './PinWidget';
 
-export interface CardProps {
+interface CardProps {
   children: React.ReactNode;
+  backgroundColor?: string;
+  rotation?: number;
+  showPin?: boolean;
+  pinColor?: string;
   style?: StyleProp<ViewStyle>;
   onPress?: () => void;
-  variant?: 'elevated' | 'outlined' | 'flat';
+  /** Disable press animation (for static display cards) */
+  pressable?: boolean;
+  padding?: number;
 }
 
-export const Card: React.FC<CardProps> = ({
+const Card: React.FC<CardProps> = ({
   children,
+  backgroundColor = Colors.paperWhite,
+  rotation = 0,
+  showPin = false,
+  pinColor = Colors.pinRed,
   style,
   onPress,
-  variant = 'elevated',
+  pressable = false,
+  padding = 16,
 }) => {
-  const containerStyle = [styles.base, styles[variant], style];
+  const scale = useRef(new Animated.Value(1)).current;
+  const rot = useRef(new Animated.Value(rotation)).current;
 
-  if (onPress) {
-    return (
-      <TouchableOpacity activeOpacity={0.8} onPress={onPress} style={containerStyle}>
-        {children}
-      </TouchableOpacity>
-    );
-  }
+  const handlePressIn = () => {
+    Animated.parallel([
+      Animated.timing(scale, {
+        toValue: 0.97,
+        duration: Animations.buttonPress,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rot, {
+        toValue: 0,
+        duration: Animations.straighten,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
 
-  return <View style={containerStyle}>{children}</View>;
+  const handlePressOut = () => {
+    Animated.parallel([
+      Animated.timing(scale, {
+        toValue: 1,
+        duration: Animations.cardLift,
+        useNativeDriver: true,
+      }),
+      Animated.timing(rot, {
+        toValue: rotation,
+        duration: Animations.straighten,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  };
+
+  const rotateInterpolate = rot.interpolate({
+    inputRange: [-10, 10],
+    outputRange: ['-10deg', '10deg'],
+  });
+
+  const cardContent = (
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          backgroundColor,
+          padding,
+          transform: [
+            { rotate: rotateInterpolate },
+            { scale },
+          ],
+        },
+        style,
+      ]}
+    >
+      {showPin && (
+        <View style={styles.pinContainer}>
+          <PinWidget color={pinColor} size={20} />
+        </View>
+      )}
+      {children}
+    </Animated.View>
+  );
+
+  if (!pressable && !onPress) return cardContent;
+
+  return (
+    <TouchableWithoutFeedback
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+    >
+      {cardContent}
+    </TouchableWithoutFeedback>
+  );
 };
 
 const styles = StyleSheet.create({
-  base: {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    padding: theme.spacing.md,
+  card: {
+    borderWidth: 3,
+    borderColor: Colors.borderBlack,
+    borderRadius: Radius.md,
+    ...flatShadow(4, 4),
   },
-  elevated: {
-    ...theme.shadows.md,
-  },
-  outlined: {
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-  },
-  flat: {
-    backgroundColor: theme.colors.surfaceSecondary,
+  pinContainer: {
+    position: 'absolute',
+    top: -10,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
   },
 });
 
