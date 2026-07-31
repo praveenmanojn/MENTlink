@@ -1,84 +1,64 @@
+/**
+ * PaperInput
+ * Text inputs that look like lines on a notebook page.
+ * Thick 2px border, warm background, label above.
+ */
 import React, { useState } from 'react';
 import {
   View,
   Text,
   TextInput as RNTextInput,
-  TextInputProps as RNTextInputProps,
   StyleSheet,
+  TextInputProps,
   TouchableOpacity,
   StyleProp,
   ViewStyle,
 } from 'react-native';
-import { theme } from '../../theme';
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
 
-export interface TextInputProps extends RNTextInputProps {
+interface PaperInputProps extends TextInputProps {
   label?: string;
   error?: string;
-  helperText?: string;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
   containerStyle?: StyleProp<ViewStyle>;
+  rightIcon?: React.ReactNode;
+  onRightIconPress?: () => void;
 }
 
-export const TextInput: React.FC<TextInputProps> = ({
+const TextInput: React.FC<PaperInputProps> = ({
   label,
   error,
-  helperText,
-  leftIcon,
-  rightIcon,
   containerStyle,
-  secureTextEntry,
-  style,
-  onFocus,
-  onBlur,
+  rightIcon,
+  onRightIconPress,
   ...rest
 }) => {
-  const [isFocused, setIsFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-
-  const isSecure = secureTextEntry && !showPassword;
+  const [focused, setFocused] = useState(false);
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
-      {label && <Text style={styles.label}>{label}</Text>}
-      <View
-        style={[
-          styles.inputContainer,
-          isFocused && styles.focused,
-          !!error && styles.errorInput,
-        ]}
-      >
-        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+      {label ? (
+        <Text style={styles.label}>{label}</Text>
+      ) : null}
+
+      <View style={[styles.inputContainer, focused && styles.inputFocused, error ? styles.inputError : null]}>
         <RNTextInput
-          style={[styles.input, style]}
-          placeholderTextColor={theme.colors.muted}
-          secureTextEntry={isSecure}
-          onFocus={(e) => {
-            setIsFocused(true);
-            onFocus?.(e);
-          }}
-          onBlur={(e) => {
-            setIsFocused(false);
-            onBlur?.(e);
-          }}
+          style={styles.input}
+          placeholderTextColor={Colors.inkFaint}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
           {...rest}
         />
-        {secureTextEntry ? (
-          <TouchableOpacity
-            style={styles.iconContainer}
-            onPress={() => setShowPassword(!showPassword)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.toggleText}>{showPassword ? 'Hide' : 'Show'}</Text>
+        {rightIcon ? (
+          <TouchableOpacity onPress={onRightIconPress} style={styles.rightIcon}>
+            {rightIcon}
           </TouchableOpacity>
-        ) : (
-          rightIcon && <View style={styles.iconContainer}>{rightIcon}</View>
-        )}
+        ) : null}
       </View>
+
       {error ? (
         <Text style={styles.errorText}>{error}</Text>
-      ) : helperText ? (
-        <Text style={styles.helperText}>{helperText}</Text>
       ) : null}
     </View>
   );
@@ -86,57 +66,55 @@ export const TextInput: React.FC<TextInputProps> = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: theme.spacing.md,
+    marginBottom: 14,
   },
   label: {
-    fontSize: theme.fontSize.sm,
-    fontWeight: theme.fontWeight.semibold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.xs,
+    fontFamily: FontFamily.semiBold,
+    fontSize: FontSize.sm,
+    color: Colors.inkDark,
+    marginBottom: 5,
+    letterSpacing: 0.2,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    borderWidth: 1.5,
-    borderColor: theme.colors.border,
-    borderRadius: theme.borderRadius.md,
-    paddingHorizontal: theme.spacing.md,
-    minHeight: 48,
+    backgroundColor: Colors.paperWhite,
+    borderWidth: 2,
+    borderColor: Colors.borderInk,
+    borderRadius: Radius.md,
+    paddingHorizontal: 12,
+    // Flat shadow
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 3, height: 3 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 3,
   },
-  focused: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.surface,
+  inputFocused: {
+    borderColor: Colors.pinBlue,
+    shadowColor: Colors.pinBlue,
   },
-  errorInput: {
-    borderColor: theme.colors.error,
-    backgroundColor: theme.colors.errorBg,
+  inputError: {
+    borderColor: Colors.statusError,
   },
   input: {
     flex: 1,
-    fontSize: theme.fontSize.md,
-    color: theme.colors.text,
-    paddingVertical: theme.spacing.sm,
+    fontFamily: FontFamily.regular,
+    fontSize: FontSize.md,
+    color: Colors.inkBlack,
+    paddingVertical: 12,
+    minHeight: 46,
   },
-  iconContainer: {
+  rightIcon: {
+    paddingLeft: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: theme.spacing.xs,
-  },
-  toggleText: {
-    fontSize: theme.fontSize.xs,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.primary,
   },
   errorText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.error,
-    marginTop: theme.spacing.xs,
-  },
-  helperText: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.muted,
-    marginTop: theme.spacing.xs,
+    fontFamily: FontFamily.medium,
+    fontSize: FontSize.xs,
+    color: Colors.statusError,
+    marginTop: 4,
   },
 });
 

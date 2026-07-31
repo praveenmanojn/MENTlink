@@ -1,3 +1,8 @@
+/**
+ * SplashScreen — PeerLink
+ * A bulletin board with PEERLINK branding on a large pinned sticky note.
+ * Feature cards as individually colored sticky notes with push pins.
+ */
 import React from 'react';
 import {
   View,
@@ -6,272 +11,259 @@ import {
   ScrollView,
   SafeAreaView,
   StatusBar,
-  Dimensions,
+  TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { AuthStackNavigationProp } from '../../types/navigation';
-import { theme } from '../../theme';
+import NotebookBackground from '../../components/common/NotebookBackground';
+import PinWidget from '../../components/common/PinWidget';
 import Button from '../../components/common/Button';
-
-const { width } = Dimensions.get('window');
+import { Colors } from '../../theme/colors';
+import { FontFamily, FontSize } from '../../theme/typography';
+import { Radius } from '../../theme/decorations';
+import { AppInfo } from '../../theme/constants';
 
 const FEATURES = [
-  {
-    id: '1',
-    icon: '⚡',
-    title: 'Instant Doubt Resolution',
-    description: 'Ask questions & connect with top-performing peer mentors in under 5 minutes.',
-    color: '#EEF2FF',
-    iconBg: '#4F46E5',
-  },
-  {
-    id: '2',
-    icon: '💬',
-    title: '1-on-1 Interactive Mentoring',
-    description: 'Engage in dedicated chat sessions with live code sharing, voice, & diagrams.',
-    color: '#ECFDF5',
-    iconBg: '#10B981',
-  },
-  {
-    id: '3',
-    icon: '⭐',
-    title: 'Verified Student Experts',
-    description: 'Learn from highly rated peers validated by academic excellence & student feedback.',
-    color: '#FFFBEB',
-    iconBg: '#F59E0B',
-  },
+  { icon: '?', label: 'Ask Doubt', desc: 'Post your academic questions', bg: Colors.stickyRed, pin: Colors.pinBlack, rot: -2 },
+  { icon: '✉', label: 'Chat',      desc: 'Get instant help via chat',     bg: Colors.stickyYellow, pin: Colors.pinBlue, rot: 1.5 },
+  { icon: '♪', label: 'Audio Session', desc: 'Schedule & join live audio', bg: Colors.stickyBlue, pin: Colors.pinRed, rot: -1.2 },
+  { icon: '★', label: 'Rate & Grow', desc: 'Rate mentors and build trust',  bg: Colors.stickyGreen, pin: Colors.pinYellow, rot: 2 },
 ];
 
 const SplashScreen = () => {
   const navigation = useNavigation<AuthStackNavigationProp<'Splash'>>();
 
-  const handleGetStarted = () => {
-    navigation.navigate('RoleSelection');
-  };
-
-  const handleLogin = () => {
-    navigation.navigate('Login');
-  };
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={theme.colors.background} />
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Top Branding Section */}
-        <View style={styles.heroContainer}>
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoIcon}>🎓</Text>
-            <Text style={styles.logoText}>MENT<Text style={styles.logoHighlight}>link</Text></Text>
-          </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" backgroundColor={Colors.notebookBg} />
+      <NotebookBackground>
+        <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-          <Text style={styles.headline}>
-            Empowering Students Through <Text style={styles.gradientText}>Peer Mentorship</Text>
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Bridge the learning gap with real-time academic guidance from verified student mentors who have excelled in your exact courses.
-          </Text>
-        </View>
-
-        {/* Feature Cards Section */}
-        <View style={styles.featuresContainer}>
-          <Text style={styles.sectionTitle}>Why Choose MENTlink?</Text>
-          {FEATURES.map((item) => (
-            <View key={item.id} style={[styles.featureCard, { backgroundColor: item.color }]}>
-              <View style={[styles.featureIconBox, { backgroundColor: item.iconBg }]}>
-                <Text style={styles.featureIconText}>{item.icon}</Text>
-              </View>
-              <View style={styles.featureTextBox}>
-                <Text style={styles.featureTitle}>{item.title}</Text>
-                <Text style={styles.featureDesc}>{item.description}</Text>
-              </View>
+          {/* ── Hero Card ─────────────────────────────────────── */}
+          <View style={styles.heroWrapper}>
+            <View style={styles.heroPin}>
+              <PinWidget color={Colors.pinBlack} size={24} />
             </View>
-          ))}
-        </View>
+            <View style={styles.heroCard}>
+              {/* Corner doodle */}
+              <Text style={styles.doodle}>✦</Text>
 
-        {/* Community Stats Bar */}
-        <View style={styles.statsContainer}>
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>1,200+</Text>
-            <Text style={styles.statLabel}>Doubts Solved</Text>
+              <Text style={styles.appName}>{AppInfo.name}</Text>
+              <View style={styles.underline} />
+              <Text style={styles.tagline}>{AppInfo.tagline.split('.').map(t => t.trim()).join('\n')}</Text>
+              <Text style={styles.desc}>{AppInfo.description}</Text>
+              <Text style={styles.doodleCorner}>✎</Text>
+            </View>
           </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>4.9/5</Text>
-            <Text style={styles.statLabel}>Peer Rating</Text>
-          </View>
-          <View style={styles.statDivider} />
-          <View style={styles.statItem}>
-            <Text style={styles.statNumber}>&lt; 5 min</Text>
-            <Text style={styles.statLabel}>Avg Match Time</Text>
-          </View>
-        </View>
 
-        {/* Action Buttons / Navigation Redirects */}
-        <View style={styles.ctaContainer}>
-          <Button
-            title="Get Started — It's Free"
-            onPress={handleGetStarted}
-            size="lg"
-            variant="primary"
-            style={styles.primaryButton}
-          />
+          {/* ── "Welcome to PeerLink!" card ───────────────────── */}
+          <View style={[styles.welcomeCard, { transform: [{ rotate: '-1deg' }] }]}>
+            <View style={styles.welcomePin}>
+              <PinWidget color={Colors.pinYellow} size={20} />
+            </View>
+            <Text style={styles.welcomeTitle}>Welcome to PeerLink!</Text>
+            <Text style={styles.welcomeBody}>
+              Get help from verified peer mentors near you. Ask doubts, chat, schedule sessions and grow together.
+            </Text>
+          </View>
 
-          <Button
-            title="I already have an account (Log In)"
-            onPress={handleLogin}
-            size="lg"
-            variant="outline"
-            style={styles.secondaryButton}
-          />
-        </View>
-      </ScrollView>
+          {/* ── Feature sticky notes grid ─────────────────────── */}
+          <View style={styles.featuresGrid}>
+            {FEATURES.map((f, i) => (
+              <View key={i} style={[styles.featureCard, { backgroundColor: f.bg, transform: [{ rotate: `${f.rot}deg` }] }]}>
+                <View style={styles.featurePin}>
+                  <PinWidget color={f.pin} size={16} />
+                </View>
+                <Text style={styles.featureIcon}>{f.icon}</Text>
+                <Text style={styles.featureLabel}>{f.label}</Text>
+                <Text style={styles.featureDesc}>{f.desc}</Text>
+              </View>
+            ))}
+          </View>
+
+          {/* ── Stats bar ─────────────────────────────────────── */}
+          <View style={styles.statsCard}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNum}>1,200+</Text>
+              <Text style={styles.statLbl}>Doubts Solved</Text>
+            </View>
+            <View style={styles.statDiv} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNum}>4.9★</Text>
+              <Text style={styles.statLbl}>Avg Rating</Text>
+            </View>
+            <View style={styles.statDiv} />
+            <View style={styles.statItem}>
+              <Text style={styles.statNum}>&lt;5 min</Text>
+              <Text style={styles.statLbl}>Match Time</Text>
+            </View>
+          </View>
+
+          {/* ── CTA Buttons ───────────────────────────────────── */}
+          <View style={styles.cta}>
+            <Button
+              title="Get Started — It's Free →"
+              onPress={() => navigation.navigate('RoleSelection')}
+              variant="primary"
+              size="lg"
+              style={styles.ctaBtn}
+            />
+            <Button
+              title="I already have an account"
+              onPress={() => navigation.navigate('Login')}
+              variant="outline"
+              size="md"
+              style={[styles.ctaBtn, { marginTop: 12 }]}
+            />
+          </View>
+
+          <View style={{ height: 32 }} />
+        </ScrollView>
+      </NotebookBackground>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
+  safe: { flex: 1, backgroundColor: Colors.notebookBg },
+  scroll: { paddingHorizontal: 20, paddingTop: 20 },
+
+  // Hero card
+  heroWrapper: { alignItems: 'center', marginBottom: 16 },
+  heroPin: { marginBottom: -10, zIndex: 10 },
+  heroCard: {
+    backgroundColor: Colors.paperWhite,
+    borderWidth: 3,
+    borderColor: Colors.borderBlack,
+    borderRadius: Radius.md,
+    padding: 28,
+    width: '100%',
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 5, height: 5 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 5,
+    transform: [{ rotate: '-1deg' }],
   },
-  scrollContent: {
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.xxl,
+  doodle: { position: 'absolute', top: 10, right: 14, fontSize: 22, color: Colors.inkFaint },
+  doodleCorner: { position: 'absolute', bottom: 10, right: 16, fontSize: 28, color: Colors.inkFaint },
+  appName: {
+    fontFamily: FontFamily.extraBold,
+    fontSize: FontSize.display,
+    color: Colors.inkBlack,
+    letterSpacing: -1,
   },
-  heroContainer: {
-    alignItems: 'center',
-    marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.xl,
+  underline: {
+    height: 4,
+    backgroundColor: Colors.stickyRed,
+    width: 80,
+    marginVertical: 8,
+    borderRadius: 2,
   },
-  logoBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: theme.spacing.lg,
-    paddingVertical: theme.spacing.sm,
-    borderRadius: theme.borderRadius.full,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    marginBottom: theme.spacing.lg,
-    ...theme.shadows.sm,
+  tagline: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.xxl,
+    color: Colors.inkBlack,
+    lineHeight: 32,
+    marginBottom: 10,
   },
-  logoIcon: {
-    fontSize: 22,
-    marginRight: theme.spacing.xs,
-  },
-  logoText: {
-    fontSize: 20,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-  },
-  logoHighlight: {
-    color: theme.colors.primary,
-  },
-  headline: {
-    fontSize: 28,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    textAlign: 'center',
-    lineHeight: 36,
-    marginBottom: theme.spacing.sm,
-  },
-  gradientText: {
-    color: theme.colors.primary,
-  },
-  subtitle: {
-    fontSize: theme.fontSize.md,
-    color: theme.colors.textSecondary,
-    textAlign: 'center',
+  desc: {
+    fontFamily: FontFamily.medium,
+    fontSize: FontSize.sm,
+    color: Colors.inkMedium,
     lineHeight: 22,
-    paddingHorizontal: theme.spacing.xs,
+    maxWidth: '85%',
   },
-  featuresContainer: {
-    marginBottom: theme.spacing.xl,
+
+  // Welcome card
+  welcomeCard: {
+    backgroundColor: Colors.stickyGreenLight,
+    borderWidth: 3,
+    borderColor: Colors.borderBlack,
+    borderRadius: Radius.md,
+    padding: 18,
+    marginBottom: 20,
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  sectionTitle: {
-    fontSize: theme.fontSize.lg,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
-    marginBottom: theme.spacing.md,
+  welcomePin: { position: 'absolute', top: -10, left: 0, right: 0, alignItems: 'center' },
+  welcomeTitle: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.lg,
+    color: Colors.inkBlack,
+    marginBottom: 6,
+    marginTop: 6,
+  },
+  welcomeBody: {
+    fontFamily: FontFamily.medium,
+    fontSize: FontSize.sm,
+    color: Colors.inkDark,
+    lineHeight: 20,
+  },
+
+  // Feature grid
+  featuresGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginBottom: 20,
   },
   featureCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: theme.spacing.md,
-    borderRadius: theme.borderRadius.lg,
-    marginBottom: theme.spacing.md,
+    width: '47%',
+    borderWidth: 3,
+    borderColor: Colors.borderBlack,
+    borderRadius: Radius.md,
+    padding: 14,
+    marginBottom: 16,
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
   },
-  featureIconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: theme.borderRadius.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: theme.spacing.md,
-  },
-  featureIconText: {
-    fontSize: 22,
-  },
-  featureTextBox: {
-    flex: 1,
-  },
-  featureTitle: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.text,
+  featurePin: { position: 'absolute', top: -8, left: 0, right: 0, alignItems: 'center' },
+  featureIcon: { fontSize: 28, marginTop: 6, marginBottom: 6, color: Colors.inkBlack },
+  featureLabel: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.sm,
+    color: Colors.inkBlack,
     marginBottom: 2,
   },
   featureDesc: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.textSecondary,
+    fontFamily: FontFamily.medium,
+    fontSize: FontSize.xxs,
+    color: Colors.inkDark,
     lineHeight: 16,
   },
-  statsContainer: {
+
+  // Stats
+  statsCard: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.borderRadius.lg,
-    paddingVertical: theme.spacing.md,
-    paddingHorizontal: theme.spacing.sm,
-    marginBottom: theme.spacing.xl,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    ...theme.shadows.sm,
+    backgroundColor: Colors.paperCream,
+    borderWidth: 3,
+    borderColor: Colors.borderBlack,
+    borderRadius: Radius.md,
+    paddingVertical: 14,
+    paddingHorizontal: 8,
+    marginBottom: 24,
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 4, height: 4 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 4,
+    transform: [{ rotate: '0.5deg' }],
   },
-  statItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  statNumber: {
-    fontSize: theme.fontSize.md,
-    fontWeight: theme.fontWeight.bold,
-    color: theme.colors.primary,
-  },
-  statLabel: {
-    fontSize: theme.fontSize.xs,
-    color: theme.colors.muted,
-    marginTop: 2,
-  },
-  statDivider: {
-    width: 1,
-    height: 24,
-    backgroundColor: theme.colors.border,
-  },
-  ctaContainer: {
-    gap: theme.spacing.sm,
-  },
-  primaryButton: {
-    width: '100%',
-  },
-  secondaryButton: {
-    width: '100%',
-  },
+  statItem: { flex: 1, alignItems: 'center' },
+  statNum: { fontFamily: FontFamily.extraBold, fontSize: FontSize.lg, color: Colors.inkBlack },
+  statLbl: { fontFamily: FontFamily.medium, fontSize: FontSize.xxs, color: Colors.inkMedium, marginTop: 2 },
+  statDiv: { width: 2, height: 32, backgroundColor: Colors.borderBlack },
+
+  // CTA
+  cta: { marginBottom: 8 },
+  ctaBtn: { width: '100%' },
 });
 
 export default SplashScreen;

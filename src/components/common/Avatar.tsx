@@ -1,62 +1,78 @@
+/**
+ * Avatar
+ * Circular avatar with thick black border — paper aesthetic.
+ */
 import React from 'react';
-import { View, Image, Text, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import { theme } from '../../theme';
+import { View, Text, StyleSheet, Image } from 'react-native';
+import { Colors } from '../../theme/colors';
+import { FontFamily } from '../../theme/typography';
 
-export interface AvatarProps {
-  src?: string;
+interface AvatarProps {
   name?: string;
+  uri?: string;
   size?: number;
-  style?: StyleProp<ViewStyle>;
+  borderColor?: string;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({ src, name, size = 40, style }) => {
-  const getInitials = (n?: string) => {
-    if (!n) return 'U';
-    const parts = n.split(' ');
-    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
-    return n.slice(0, 2).toUpperCase();
-  };
+const Avatar: React.FC<AvatarProps> = ({
+  name = '?',
+  uri,
+  size = 48,
+  borderColor = Colors.borderBlack,
+}) => {
+  const initials = name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .substring(0, 2)
+    .toUpperCase();
 
-  const containerStyle = [
-    styles.container,
-    { width: size, height: size, borderRadius: size / 2 },
-    style,
+  const bgColors = [
+    Colors.stickyRed, Colors.stickyYellow, Colors.stickyBlue, Colors.stickyGreen,
   ];
-
-  if (src) {
-    return (
-      <View style={containerStyle}>
-        <Image
-          source={{ uri: src }}
-          style={{ width: size, height: size, borderRadius: size / 2 }}
-          resizeMode="cover"
-        />
-      </View>
-    );
-  }
+  // Deterministic color based on name
+  const bgColor = bgColors[name.charCodeAt(0) % bgColors.length];
 
   return (
-    <View style={[containerStyle, styles.fallback]}>
-      <Text style={[styles.initials, { fontSize: size * 0.4 }]}>{getInitials(name)}</Text>
+    <View
+      style={[
+        styles.container,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderColor,
+          backgroundColor: bgColor,
+        },
+      ]}
+    >
+      {uri ? (
+        <Image
+          source={{ uri }}
+          style={{ width: size - 4, height: size - 4, borderRadius: (size - 4) / 2 }}
+        />
+      ) : (
+        <Text style={[styles.initials, { fontSize: size * 0.36 }]}>{initials}</Text>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    overflow: 'hidden',
-    justifyContent: 'center',
+    borderWidth: 2.5,
     alignItems: 'center',
-    backgroundColor: theme.colors.surfaceSecondary,
-  },
-  fallback: {
-    backgroundColor: theme.colors.primaryBg,
-    borderWidth: 1,
-    borderColor: theme.colors.primaryLight,
+    justifyContent: 'center',
+    shadowColor: Colors.borderBlack,
+    shadowOffset: { width: 2, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
+    elevation: 3,
   },
   initials: {
-    color: theme.colors.primary,
-    fontWeight: theme.fontWeight.bold,
+    fontFamily: FontFamily.bold,
+    color: Colors.inkBlack,
+    lineHeight: undefined,
   },
 });
 
