@@ -1,21 +1,70 @@
 import React from 'react';
-import { Input, Icon } from 'nativewind';
-import { SearchIcon } from '@expo/vector-icons';
+import { View, TextInput, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { theme } from '../../theme';
 
-type SearchBarProps = React.TextInputHTMLAttributes<HTMLInputElement> & {
+export interface SearchBarProps {
+  value: string;
+  onChangeText: (text: string) => void;
   placeholder?: string;
+  onClear?: () => void;
+}
+
+export const SearchBar: React.FC<SearchBarProps> = ({
+  value,
+  onChangeText,
+  placeholder = 'Search topics, mentors, or doubts...',
+  onClear,
+}) => {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.searchIcon}>🔍</Text>
+      <TextInput
+        style={styles.input}
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor={theme.colors.muted}
+      />
+      {value.length > 0 && (
+        <TouchableOpacity
+          onPress={() => {
+            onChangeText('');
+            onClear?.();
+          }}
+          style={styles.clearButton}
+        >
+          <Text style={styles.clearText}>✕</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
 };
 
-export const SearchBar = React.forwardRef<HTMLInputElement, SearchBarProps>((props, ref) => {
-  const { placeholder = 'Search...', ...rest } = props;
-  return (
-    <Input
-      ref={ref}
-      placeholder={placeholder}
-      className="mt-2 rounded-md border border-gray-300 px-3 py-2 text-sm"
-      {...rest}
-    >
-      <SearchIcon className="mt-1 h-5 w-5 text-gray-500" />
-    </Input>
-  );
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: theme.colors.surfaceSecondary,
+    borderRadius: theme.borderRadius.full,
+    paddingHorizontal: theme.spacing.md,
+    height: 44,
+  },
+  searchIcon: {
+    fontSize: 16,
+    marginRight: theme.spacing.sm,
+  },
+  input: {
+    flex: 1,
+    fontSize: theme.fontSize.sm,
+    color: theme.colors.text,
+  },
+  clearButton: {
+    padding: theme.spacing.xs,
+  },
+  clearText: {
+    fontSize: 12,
+    color: theme.colors.muted,
+  },
 });
+
+export default SearchBar;
