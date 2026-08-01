@@ -29,9 +29,6 @@ ios/build/
 !.env
 !.env.example
 
-# SQL Migration Files
-*.sql
-
 # Logs
 npm-debug.log*
 yarn-debug.log*
