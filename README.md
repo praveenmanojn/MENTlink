@@ -145,10 +145,17 @@ expo build:android   # or expo build:ios
 
 ## Environment Variables
 
-| Variable                     | Description                                 |
-|------------------------------|---------------------------------------------|
-| `EXPO_PUBLIC_SUPABASE_URL`   | Supabase project URL                        |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key for client-side access   |
+| Variable | Description |
+|---|---|
+| `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key for client-side access |
+
+## Live Audio/Video Calls (Expo Go Compatible)
+
+> [!NOTE]
+> Live Audio and Video calls in PeerLink use **Jitsi Meet** loaded inside a WebView (`react-native-webview`).
+> 
+> This approach is **100% Expo Go compatible**—no native build or custom development client is required! You can test calls directly using the standard Expo Go mobile app.
 
 ## License
 

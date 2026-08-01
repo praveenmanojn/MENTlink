@@ -48,7 +48,7 @@ export const NoteColors = {
 
 /** App name and tagline */
 export const AppInfo = {
-  name: 'PeerLink',
+  name: 'MENTlink',
   tagline: 'Connect. Learn. Grow.',
   description: 'Hyperlocal peer-to-peer\ndoubt resolution &\nmentorship network.',
 } as const;

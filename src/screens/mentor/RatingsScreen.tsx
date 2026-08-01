@@ -12,7 +12,7 @@ import { FontFamily, FontSize } from '../../theme/typography';
 import { Radius } from '../../theme/decorations';
 
 const REVIEWS = [
-  { id: '1', student: 'Praveen M.', rating: 5, review: 'Rahul explained everything so clearly! Best mentor on PeerLink.', subject: 'Mathematics', date: 'Today' },
+  { id: '1', student: 'Praveen M.', rating: 5, review: 'Rahul explained everything so clearly! Best mentor on MENTlink.', subject: 'Mathematics', date: 'Today' },
   { id: '2', student: 'Sneha K.', rating: 5, review: 'Very patient and thorough. Helped me understand Newton\'s Laws perfectly.', subject: 'Physics', date: 'Yesterday' },
   { id: '3', student: 'Arjun P.', rating: 4, review: 'Great session! Could have been a bit more detailed on edge cases.', subject: 'CS', date: '3 days ago' },
 ];

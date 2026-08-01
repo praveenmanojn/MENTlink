@@ -3,7 +3,8 @@
  * Admin overview with KPI sticky notes.
  */
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, ScrollView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import NotebookBackground from '../../components/common/NotebookBackground';
 import PinWidget from '../../components/common/PinWidget';
 import { Colors } from '../../theme/colors';
@@ -24,7 +25,10 @@ const RECENT_ACTIVITY = [
   { id: '4', action: 'Report submitted', user: 'Sneha K.', time: '2 hours ago', icon: '⊞' },
 ];
 
-const DashboardScreen = () => (
+const DashboardScreen = () => {
+  const navigation = useNavigation();
+  
+  return (
   <SafeAreaView style={styles.safe}>
     <StatusBar barStyle="dark-content" backgroundColor={Colors.notebookBg} />
     <NotebookBackground>
@@ -61,11 +65,31 @@ const DashboardScreen = () => (
           ))}
         </View>
 
+        {/* Quick Links */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Directory</Text>
+        <View style={styles.quickLinksRow}>
+          <TouchableOpacity 
+            style={[styles.quickLinkBtn, { backgroundColor: Colors.stickyBlueLight }]}
+            onPress={() => (navigation as any).navigate('AdminMentors')}
+          >
+            <Text style={styles.quickLinkIcon}>🎓</Text>
+            <Text style={styles.quickLinkText}>Mentors</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.quickLinkBtn, { backgroundColor: Colors.stickyYellowLight }]}
+            onPress={() => (navigation as any).navigate('AdminStudents')}
+          >
+            <Text style={styles.quickLinkIcon}>🎒</Text>
+            <Text style={styles.quickLinkText}>Students</Text>
+          </TouchableOpacity>
+        </View>
+
         <View style={{ height: 80 }} />
       </ScrollView>
     </NotebookBackground>
   </SafeAreaView>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   safe: { flex: 1 },
@@ -101,6 +125,15 @@ const styles = StyleSheet.create({
   activityAction: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack },
   activityUser: { fontFamily: FontFamily.regular, fontSize: FontSize.xxs, color: Colors.inkFaint, marginTop: 2 },
   activityTime: { fontFamily: FontFamily.regular, fontSize: FontSize.xxs, color: Colors.inkFaint },
+
+  quickLinksRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 16 },
+  quickLinkBtn: {
+    flex: 1, paddingVertical: 18, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 3, borderColor: Colors.borderBlack, borderRadius: Radius.md,
+    shadowColor: Colors.borderBlack, shadowOffset: { width: 4, height: 4 }, shadowOpacity: 1, shadowRadius: 0, elevation: 4,
+  },
+  quickLinkIcon: { fontSize: 24, marginBottom: 8 },
+  quickLinkText: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack },
 });
 
 export default DashboardScreen;

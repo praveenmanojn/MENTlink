@@ -18,6 +18,7 @@ import {
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { AuthStackNavigationProp, AuthStackParamList } from '../../types/navigation';
 import { useAuthStore } from '../../store/authStore';
+import { supabase } from '../../services/supabase/client';
 import { DUMMY_USERS, findDummyUser } from '../../utils/constants';
 import NotebookBackground from '../../components/common/NotebookBackground';
 import PinWidget from '../../components/common/PinWidget';
@@ -45,18 +46,72 @@ export const LoginScreen = () => {
     if (user) { setUsernameOrEmail(user.username); setPassword(user.password); setError(''); }
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!usernameOrEmail.trim() || !password.trim()) { setError('Please enter both username and password.'); return; }
     setError(''); setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const matchedUser = findDummyUser(usernameOrEmail, password);
-      if (matchedUser) {
-        login({ id: matchedUser.id, email: matchedUser.email, role: matchedUser.role });
-      } else {
-        setError('Invalid credentials.\nTry: teacher/123t  •  student/123s  •  admin/123a');
+
+    try {
+      if (!supabase) {
+        throw new Error('Supabase is not initialized. Please check your environment configuration.');
       }
-    }, 400);
+
+      let loginEmail = usernameOrEmail.trim();
+
+      // If user typed admin credentials, navigate to Admin Login
+      if ((loginEmail === 'admin' || loginEmail === 'admin@peerlink.dev') && (password === 'admin' || password === '123a')) {
+        navigation.navigate('AdminLogin');
+        setLoading(false);
+        return;
+      }
+
+      if (loginEmail === 'student') loginEmail = 'student@peerlink.dev';
+      else if (loginEmail === 'teacher') loginEmail = 'rahul@peerlink.dev';
+
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: password,
+      });
+
+      if (signInError) {
+        setError(signInError.message);
+        return;
+      }
+
+      if (signInData?.session?.user) {
+        const userId = signInData.session.user.id;
+        const userMetaRole = signInData.session.user.user_metadata?.role || preselectedRole || 'student';
+
+        // Check if profile exists in profiles table
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single();
+
+        const finalRole = profile?.role || userMetaRole;
+
+        // If no profile exists yet, insert credentials into profiles table
+        if (!profile) {
+          const name = signInData.session.user.user_metadata?.name || loginEmail.split('@')[0];
+          await supabase.from('profiles').upsert({
+            id: userId,
+            email: loginEmail,
+            name: name,
+            role: finalRole,
+            reputation: finalRole === 'mentor' ? 4.90 : 0.00,
+            availability: true,
+            is_verified: true,
+          });
+        }
+
+        // Update authStore session state to route immediately to correct dashboard
+        await useAuthStore.getState().setSession(signInData.session);
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during sign in.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const QUICK_FILLS = [
@@ -80,31 +135,15 @@ export const LoginScreen = () => {
             <View style={styles.cardWrapper}>
               <View style={styles.pin}><PinWidget color={Colors.pinBlue} size={22} /></View>
               <View style={styles.card}>
-                <Text style={styles.logo}>PeerLink</Text>
+                <Text style={styles.logo}>MENTlink</Text>
                 <Text style={styles.title}>Welcome Back!</Text>
                 <Text style={styles.subtitle}>Sign in to continue your learning journey.</Text>
-
-                {/* Quick fill */}
-                <View style={styles.quickBox}>
-                  <Text style={styles.quickLabel}>⚡ Quick Demo Login:</Text>
-                  <View style={styles.quickRow}>
-                    {QUICK_FILLS.map((q) => (
-                      <TouchableOpacity
-                        key={q.type}
-                        onPress={() => handleQuickFill(q.type)}
-                        style={[styles.quickChip, { backgroundColor: q.bg }]}
-                      >
-                        <Text style={styles.quickChipText}>{q.label}</Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
-                </View>
 
                 {error ? <Text style={styles.error}>{error}</Text> : null}
 
                 <TextInput
                   label="Username or Email"
-                  placeholder="e.g. student, teacher, admin"
+                  placeholder="name@example.com"
                   value={usernameOrEmail}
                   onChangeText={setUsernameOrEmail}
                   autoCapitalize="none"
@@ -131,6 +170,13 @@ export const LoginScreen = () => {
                     <Text style={styles.footerLink}>Sign Up</Text>
                   </TouchableOpacity>
                 </View>
+
+                <TouchableOpacity
+                  style={styles.adminPortalLink}
+                  onPress={() => navigation.navigate('AdminLogin')}
+                >
+                  <Text style={styles.adminPortalLinkText}>🛡️ Switch to Administrator Portal →</Text>
+                </TouchableOpacity>
               </View>
             </View>
 
@@ -227,7 +273,24 @@ const styles = StyleSheet.create({
   btn: { width: '100%' },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   footerText: { fontFamily: FontFamily.medium, fontSize: FontSize.sm, color: Colors.inkMedium },
-  footerLink: { fontFamily: FontFamily.bold, fontSize: FontSize.sm, color: Colors.inkBlack, textDecorationLine: 'underline' },
+  footerLink: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.sm,
+    color: Colors.inkBlack,
+    textDecorationLine: 'underline',
+  },
+  adminPortalLink: {
+    marginTop: 16,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderTopWidth: 2,
+    borderTopColor: Colors.borderLight,
+  },
+  adminPortalLinkText: {
+    fontFamily: FontFamily.bold,
+    fontSize: FontSize.xs,
+    color: Colors.stickyRed,
+  },
 });
 
 export default LoginScreen;

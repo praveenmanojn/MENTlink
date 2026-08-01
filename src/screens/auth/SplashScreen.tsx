@@ -61,7 +61,7 @@ const SplashScreen = () => {
             <View style={styles.welcomePin}>
               <PinWidget color={Colors.pinYellow} size={20} />
             </View>
-            <Text style={styles.welcomeTitle}>Welcome to PeerLink!</Text>
+            <Text style={styles.welcomeTitle}>Welcome to MENTlink!</Text>
             <Text style={styles.welcomeBody}>
               Get help from verified peer mentors near you. Ask doubts, chat, schedule sessions and grow together.
             </Text>
