@@ -66,7 +66,7 @@ export const RoleSelectionScreen = () => {
           {/* Header note */}
           <View style={styles.headerCard}>
             <Text style={styles.headline}>Choose Your Journey</Text>
-            <Text style={styles.subheadline}>How would you like to join PeerLink?</Text>
+            <Text style={styles.subheadline}>How would you like to join MENTlink?</Text>
           </View>
 
           {/* Role cards */}

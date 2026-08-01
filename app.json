@@ -1,12 +1,35 @@
 {
   "expo": {
-    "name": "PeerLink",
-    "slug": "peerlink",
+    "name": "MENTlink",
+    "slug": "mentlink",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "assetBundlePatterns": [
       "**/*"
+    ],
+    "ios": {
+      "infoPlist": {
+        "NSCameraUsageDescription": "Allow MENTlink to access your camera for video calls.",
+        "NSMicrophoneUsageDescription": "Allow MENTlink to access your microphone for calls."
+      }
+    },
+    "android": {
+      "permissions": [
+        "CAMERA",
+        "RECORD_AUDIO",
+        "INTERNET",
+        "MODIFY_AUDIO_SETTINGS"
+      ],
+      "package": "com.anonymous.peerlink"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow MENTlink to access your camera for video calls."
+        }
+      ]
     ]
   }
 }

@@ -21,20 +21,20 @@ import MentorProfileScreen from '../screens/mentor/MentorProfileScreen';
 import AdminDashboardScreen from '../screens/admin/DashboardScreen';
 import AdminUsersScreen from '../screens/admin/UsersScreen';
 import AdminAnalyticsScreen from '../screens/admin/AnalyticsScreen';
-import AdminProfileScreen from '../screens/student/ProfileScreen';
+import AdminProfileScreen from '../screens/admin/AdminProfileScreen';
 
 const BottomTab = createBottomTabNavigator();
 
 const MainTabs = () => {
-  const user = useAuthStore((state) => state.user);
-  const role = user?.role || 'student';
+  const role = useAuthStore((state) => state.role);
+  const activeRole = role || 'student';
 
   return (
     <BottomTab.Navigator
       tabBar={(props) => <PaperBottomNav {...props} />}
       screenOptions={{ headerShown: false }}
     >
-      {role === 'mentor' ? (
+      {activeRole === 'mentor' ? (
         <>
           <BottomTab.Screen name="Dashboard" component={MentorDashboardScreen} />
           <BottomTab.Screen name="Requests" component={MentorRequestsScreen} />
@@ -42,7 +42,7 @@ const MainTabs = () => {
           <BottomTab.Screen name="Ratings" component={MentorRatingsScreen} />
           <BottomTab.Screen name="Profile" component={MentorProfileScreen} />
         </>
-      ) : role === 'admin' ? (
+      ) : activeRole === 'admin' ? (
         <>
           <BottomTab.Screen name="Dashboard" component={AdminDashboardScreen} />
           <BottomTab.Screen name="Users" component={AdminUsersScreen} />
