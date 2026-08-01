@@ -1,161 +1,118 @@
-# PeerLink Mobile Application
+# MENTlink
 
 ## Overview
 
-PeerLink is a React Native (Expo) mobile application designed with a scalable, modular architecture to enable three developers to work independently on Student, Mentor, and Backend modules without merge conflicts.
+MENTlink is a React Native (Expo) application that connects students and mentors through a scalable and modular architecture, allowing multiple developers to work simultaneously with minimal merge conflicts.
 
 ### Tech Stack
 
-- **React Native (Expo)**
-- **TypeScript**
-- **React Navigation** (Stack + Bottom Tab)
-- **Supabase** (Backend as a Service)
-- **Expo Router** (optional, not used in this base)
-- **NativeWind** (CSS-in-JS styling)
-- **React Hook Form**
-- **Zustand** (global state)
-- **TanStack Query** (server-state management)
-- **AsyncStorage**
-- **Expo Notifications**
+* React Native (Expo)
+* TypeScript
+* React Navigation
+* Supabase
+* NativeWind
+* Zustand
+* TanStack Query
+* AsyncStorage
+* Expo Notifications
+* React Hook Form
 
-## Folder Structure
+---
 
-```
+## Project Structure
+
+```text
 src/
-├── assets/               # Images, icons, fonts, etc.
+├── assets/
 ├── components/
-│   ├── common/           # Reusable UI components
-│   │   ├── Button.tsx
-│   │   ├── TextInput.tsx
-│   │   ├── SearchBar.tsx
-│   │   ├── Card.tsx
-│   │   ├── EmptyState.tsx
-│   │   ├── Avatar.tsx
-│   │   ├── Badge.tsx
-│   │   └── LoadingSpinner.tsx
-│   └── ...               # Feature-specific components
-├── constants/            # Application constants
-├── hooks/                # Custom React hooks (if any)
-├── navigation/           # React Navigation configuration
-│   ├── AuthStack.tsx
-│   ├── MainTabs.tsx
-│   └── Index.tsx
-├── screens/              # Screen-level components
+├── constants/
+├── hooks/
+├── navigation/
+├── screens/
 │   ├── auth/
-│   │   ├── SplashScreen.tsx
-│   │   ├── LoginScreen.tsx
-│   │   ├── RegisterScreen.tsx
-│   │   ├── ForgotPasswordScreen.tsx
-│   │   └── RoleSelectionScreen.tsx
 │   ├── student/
-│   │   ├── HomeScreen.tsx
-│   │   ├── AskDoubtScreen.tsx
-│   │   ├── ChatScreen.tsx
-│   │   ├── HistoryScreen.tsx
 │   ├── mentor/
-│   │   ├── DashboardScreen.tsx
-│   │   ├── RequestsScreen.tsx
-│   │   ├── ChatScreen.tsx
-│   │   └── RatingsScreen.tsx
 │   └── admin/
-│       ├── DashboardScreen.tsx
-│       ├── UsersScreen.tsx
-│       └── AnalyticsScreen.tsx
 ├── services/
-│   ├── supabase/
-│   │   └── client.ts     # Supabase client instance
-│   ├── auth/
-│   ├── location/
-│   ├── notifications/
-│   └── storage/
-├── store/                # Zustand stores
-│   ├── authStore.ts
-│   ├── userStore.ts
-│   └── themeStore.ts
-├── types/                # TypeScript types and interfaces
-├── utils/                # Helper functions
-│   ├── dateFormatter.ts
-│   ├── validation.ts
-│   ├── constants.ts
-│   ├── errorHandler.ts
-│   └── logger.ts
-├── theme/                # NativeWind theme configuration
-│   └── index.ts
-└── App.tsx               # Root component with QueryClientProvider
+├── store/
+├── types/
+├── utils/
+├── theme/
+└── App.tsx
 ```
 
-## Getting Started
+---
 
-### Prerequisites
-
-- **Node.js** (v20.x)
-- **npm** or **yarn**
-- **Expo CLI** (`npm install -g expo-cli`)
-
-### Installation
+## Installation
 
 ```bash
-git clone <repo-url>
-cd peer-peer
+git clone <repository-url>
+cd MENTlink
 npm install
 ```
 
-### Environment Setup
+---
 
-Create a `.env` file at the project root with the following variables:
+## Environment Variables
 
-```
+Create a `.env` file in the root directory.
+
+```env
 EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
 EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-> **Note:** The `EXPO_PUBLIC_` prefix makes variables available to the Expo app.
+---
 
-### Development
-
-```bash
-npm run start   # starts Expo dev server
-```
-
-The app will open in Expo Go on your device or a simulator.
-
-### Building for Production
+## Running the Application
 
 ```bash
-expo build:android   # or expo build:ios
+npm run start
 ```
+
+The application can be tested using:
+
+* Expo Go
+* Android Emulator
+* iOS Simulator
+
+---
 
 ## Coding Standards
 
-- **TypeScript** strict mode enabled.
-- **Prettier** for formatting (see `.prettierrc`).
-- **ESLint** for linting (see `.eslintrc.js`).
-- Use **camelCase** for variable names and **PascalCase** for components and types.
-- Keep components small and focused; extract reusable UI pieces into `components/common`.
-- Prefer **functional components** with hooks over class components.
-- Use **descriptive prop names** and **JSDoc** comments for clarity.
+* Use TypeScript strict mode.
+* Follow ESLint and Prettier guidelines.
+* Use camelCase for variables.
+* Use PascalCase for components.
+* Build reusable components whenever possible.
 
-## Branch Strategy
+---
 
-- **main** – production-ready code.
-- **feature/<name>** – new feature development.
-- **bugfix/<name>** – fix a bug.
-- **hotfix/<name>** – urgent production fix.
-- All developers should **pull** the latest `main` before starting a new branch.
+## Branching Strategy
 
-## Environment Variables
+* `main` – Stable code
+* `feature/<name>` – New features
+* `bugfix/<name>` – Bug fixes
+* `hotfix/<name>` – Critical fixes
 
-| Variable | Description |
-|---|---|
-| `EXPO_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key for client-side access |
+---
 
-## Live Audio/Video Calls (Expo Go Compatible)
+## Team CONQCODE
 
-> [!NOTE]
-> Live Audio and Video calls in PeerLink use **Jitsi Meet** loaded inside a WebView (`react-native-webview`).
-> 
-> This approach is **100% Expo Go compatible**—no native build or custom development client is required! You can test calls directly using the standard Expo Go mobile app.
+| Role                             | Member          | Register Number |
+| -------------------------------- | --------------- | --------------- |
+| Team Lead                        | Praveen Manoj N | 7376252AL190    |
+| Backend and Frontend             | V Abinandh      | 7376252AL239    |
+| Database                         | Krithick Raj    | 7376251CS264    |
+| Documentation and Log Management | Sanjay S        | 7376252AL207    |
+
+---
+
+## Audio and Video Calls
+
+MENTlink uses Jitsi Meet through WebView integration, allowing users to access voice and video calls directly from Expo Go.
+
+---
 
 ## License
 
@@ -163,4 +120,4 @@ MIT License
 
 ---
 
-*Generated with ❤️ using React Native, Expo, and TypeScript.*
+**Developed by Team CONQCODE ❤️**
